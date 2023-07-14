@@ -20,7 +20,7 @@ npm install
 npm start
 ```
 
-4. Use by setting your url as openai reverse proxy in jai
+4. Use by setting your url as openai reverse proxy in jai and turn off text streaming
 
 ```txt
 http://localhost:3000/v2/poe
