@@ -6,7 +6,7 @@ To self-host your own parser, you can use the following steps:
 
 1. install [node.js](https://nodejs.org/en)
 
-2. [Get your poe cookie](https://docs.sillytavern.app/usage/api-connections/poe/))
+2. [Get your poe cookie](https://docs.sillytavern.app/usage/api-connections/poe/)
 3. Clone this repository and install the dependencies:
 
 ```bash
