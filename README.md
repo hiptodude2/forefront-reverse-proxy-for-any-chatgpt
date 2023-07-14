@@ -4,8 +4,10 @@
 
 To self-host your own parser, you can use the following steps:
 
-1. [Get your poe cookie](https://docs.sillytavern.app/usage/api-connections/poe/))
-2. Clone this repository and install the dependencies:
+1. install [node.js](https://nodejs.org/en)
+
+2. [Get your poe cookie](https://docs.sillytavern.app/usage/api-connections/poe/))
+3. Clone this repository and install the dependencies:
 
 ```bash
 git clone https://github.com/4e4f4148/JanitorAI-POE-Proxy.git
@@ -13,14 +15,14 @@ cd JanitorAI-POE-Proxy
 npm install
 ```
 
-3. Set your poe key and other configurations in the `config.js` file.
-4. Start the server:
+4. Set your poe key and other configurations in the `config.js` file.
+5. Start the server:
 
 ```bash
 npm start
 ```
 
-4. Use by setting your url as openai reverse proxy in jai and turn off text streaming
+6. Use by setting your url as openai reverse proxy in jai and turn off text streaming
 
 ```txt
 http://localhost:3000/v2/poe
@@ -28,7 +30,7 @@ http://localhost:3000/v2/poe
 
 if localhost url not working. you may need to expose your localhost with cloudflared
 
-5. expose localhost with cloudflared in another cmd (optional)
+7. expose localhost with cloudflared in another cmd (optional)
 
 ```bash
 npm install -g cloudflared
