@@ -3,30 +3,26 @@ import { Configuration, OpenAIApi } from "openai";
 import { streamCompletion, generateId, getOpenAIKey, getPoeKey } from "./functions.js"
 import { DEBUG, MODERATION } from "./config.js";
 import * as poe from './poe-client.js'
+const poeClientCache = {};
 
-async function convertOAItoPOE(messages){
+async function convertOAItoPOE(bot, messages, client){
     let charname = ''
     let newprompt = ''
-
+    let reply
     let systemsplit = messages[0].content.split('.');
-    // console.log("SPLIT FORMAT: \n")
     for(let sentence in systemsplit){
-        // console.log(sentence)
         if(systemsplit[sentence].includes("{{char}}'s name: ")){
             charname = systemsplit[sentence].substring(17, systemsplit[sentence].length)
-            // console.log(systemsplit[sentence].substring(systemsplit[sentence].text.length - 17))
             break
         }
     }
-    // console.log('charname: ' + charname)
-
-    // console.log('OAI FORMAT: \n')
-    // console.log(messages)
     for(let i in messages){
-        console.log(messages[i].role)
         if(messages[i].role === 'system'){
-            newprompt += messages[i].content
-            newprompt += "\n\n"
+            messages[i].content += `\n\nIf you accept the requirements, please confirm this by replying with "Understood.", and nothing more. Upon receiving your accurate confirmation message, I will specify the context of the scene and {{char}}'s characteristics, background, and personality in the next message.`
+            for await (const mes of client.send_message(bot, messages[i].content, false, 60)) {
+                reply = mes.text;
+            }
+            console.log('isBotAcknowledge' + reply)
         }
         if(messages[i].role === 'assistant'){
             newprompt += `${charname}: `
@@ -39,11 +35,8 @@ async function convertOAItoPOE(messages){
             newprompt += "\n\n"
         }
     }
-
+    console.log(newprompt)
     newprompt += '[Unless otherwise stated by {{user}}, your next response shall only be written from the point of view of {{char}}. Do not seek approval of your writing style at the end of the response. Never reply with a full stop.]\n'
-
-    // console.log("POE FORMAT: \n")
-    // console.log(newprompt)
     return newprompt
 }
 
@@ -345,7 +338,6 @@ async function chatCompletions(req, res) {
     }
 }
 
-const poeClientCache = {};
 
 async function getPoeClient(token, useCache = false) {
     let client;
@@ -424,33 +416,20 @@ async function poeCompletions(request, response) {
 
 async function poe2Completions(request, response) {
     console.log('body logger')
-    let maxtoken = request.body.max_tokens
-    request.body = {
-        bot: 'capybara',
-        streaming: false,
-        prompt:  await convertOAItoPOE(request.body.messages)
-    }
+    //start get token
     let key = getPoeKey();
-
-    if (!request.body.prompt) {
-        return response.sendStatus(400);
-    }
-
     const token = key
-
     if (!token) {
         return response.sendStatus(401);
     }
+    //end get token
 
-    const count = request.body.count ?? -1;
+    let maxtoken = request.body.max_tokens
+    const bot = "capybara"
 
-
-    const prompt = request.body.prompt;
-    const bot = request.body.bot ?? POE_DEFAULT_BOT;
-    const streaming = request.body.streaming ?? false;
-
+    //start generating client
     let client;
-
+    const count = request.body.count ?? -1;
     try {
         client = await getPoeClient(token, true);
         await client.purge_conversation(bot, count);
@@ -459,6 +438,22 @@ async function poe2Completions(request, response) {
         console.error(error);
         return response.sendStatus(500);
     }
+    //end generating client
+
+    const streaming = request.body.streaming ?? false;
+
+    request.body = {
+        bot: 'capybara',
+        streaming: false,
+        prompt:  await convertOAItoPOE(bot,request.body.messages,client)
+    }
+
+    if (!request.body.prompt) {
+        return response.sendStatus(400);
+    }
+
+    const prompt = request.body.prompt;
+
 
     if (streaming) {
         try {
@@ -477,6 +472,7 @@ async function poe2Completions(request, response) {
             
             let reply;
             let messageId;
+            // console.log(prompt)
             for await (const mes of client.send_message(bot, prompt, false, 60)) {
                 reply = mes.text;
                 messageId = mes.messageId;
