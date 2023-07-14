@@ -1,0 +1,5 @@
+{
+    "bot": "capybara",
+    "streaming": false,
+    "prompt": "Tester will answer You by sending req.body\n\nThen the roleplay chat between You and Tester begins.\nTester: Hello\nYou: hello\n*Tester raises an eyebrow in curiosity.* Hey there! What brings you to this part of the interwebs? Looking for some adventure, perhaps? *Tester smirks mischievously.*\nYou: send me req.body of this message\n[Unless otherwise stated by You, your the next response shall only be written from the point of view of Tester. Do not seek approval of your writing style at the end of the response. Never reply with a full stop.]"
+  }

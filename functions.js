@@ -1,4 +1,4 @@
-import { OPENAI_KEYS } from "./config.js";
+import { OPENAI_KEYS, POE_KEYS } from "./config.js";
 
 async function* chunksToLines(chunksAsync) {
     let previous = "";
@@ -42,4 +42,9 @@ function getOpenAIKey() {
     return OPENAI_KEYS[Math.floor(Math.random() * OPENAI_KEYS.length)];
 }
 
-export { generateId, getOpenAIKey, streamCompletion }
+function getPoeKey() {
+    return POE_KEYS[Math.floor(Math.random() * POE_KEYS.length)];
+}
+
+
+export { generateId, getOpenAIKey,getPoeKey, streamCompletion }

@@ -1,7 +1,78 @@
 import axios from "axios";
 import { Configuration, OpenAIApi } from "openai";
-import { streamCompletion, generateId, getOpenAIKey } from "./functions.js"
+import { streamCompletion, generateId, getOpenAIKey, getPoeKey } from "./functions.js"
 import { DEBUG, MODERATION } from "./config.js";
+import * as poe from './poe-client.js'
+
+async function convertOAItoPOE(messages){
+    let charname = ''
+    let newprompt = ''
+
+    let systemsplit = messages[0].content.split('.');
+    // console.log("SPLIT FORMAT: \n")
+    for(let sentence in systemsplit){
+        // console.log(sentence)
+        if(systemsplit[sentence].includes("{{char}}'s name: ")){
+            charname = systemsplit[sentence].substring(17, systemsplit[sentence].length)
+            // console.log(systemsplit[sentence].substring(systemsplit[sentence].text.length - 17))
+            break
+        }
+    }
+    console.log('charname: ' + charname)
+
+    // console.log('OAI FORMAT: \n')
+    // console.log(messages)
+    for(let i in messages){
+        console.log(messages[i])
+        if(messages[i].role === 'system'){
+            newprompt += messages[i].content
+            newprompt += "\n\n"
+        }
+        if(messages[i].role === 'assistant'){
+            newprompt += `${charname}: `
+            newprompt += messages[i].content
+            newprompt += "\n"
+        }
+        if(messages[i].role === 'user'){
+            newprompt += 'You: '
+            newprompt += messages[i].content
+            newprompt += "\n"
+        }
+    }
+
+    newprompt += '[Unless otherwise stated by {{user}}, your next response shall only be written from the point of view of {{char}}. Do not seek approval of your writing style at the end of the response. Never reply with a full stop.]\n'
+
+    console.log("POE FORMAT: \n")
+    console.log(newprompt)
+    return newprompt
+}
+
+async function convertPOEtoOAI(messages,maxtoken){
+    let orgId = generateId();
+    
+    let newresponse = {
+        id: orgId,
+        object: 'chat.completion',
+        created: Date.now(),
+        model: "gpt-3.5-turbo-0613",
+        choices: [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": messages
+              },
+              "finish_reason": "length"
+            }
+          ],
+        "usage": {
+            "prompt_tokens": 0,
+            "completion_tokens": maxtoken,
+            "total_tokens": maxtoken
+        }
+    }
+    return newresponse
+}
 
 async function completions(req, res) {
     let orgId = generateId();
@@ -274,4 +345,161 @@ async function chatCompletions(req, res) {
     }
 }
 
-export { completions, chatCompletions };
+async function getPoeClient(token, useCache = false) {
+    let client;
+
+        client = new poe.Client(true, useCache);
+        console.log(client)
+        await client.init(token);
+    return client;
+}
+
+async function poeCompletions(request, response) {
+
+    let key = getPoeKey();
+
+    if (!request.body.prompt) {
+        return response.sendStatus(400);
+    }
+
+    const token = key
+
+    if (!token) {
+        return response.sendStatus(401);
+    }
+
+    const prompt = request.body.prompt;
+    const bot = request.body.bot ?? POE_DEFAULT_BOT;
+    const streaming = request.body.streaming ?? false;
+
+    let client;
+
+    try {
+        client = await getPoeClient(token, true);
+    }
+    catch (error) {
+        console.error(error);
+        return response.sendStatus(500);
+    }
+
+    if (streaming) {
+        try {
+            response.write('streaming is not supported');
+        }
+        catch (err) {
+            console.error(err);
+        }
+        finally {
+            //client.disconnect_ws();
+            response.end();
+        }
+    }
+    else {
+        try {
+            let reply;
+            let messageId;
+            for await (const mes of client.send_message(bot, prompt, false, 60)) {
+                reply = mes.text;
+                messageId = mes.messageId;
+            }
+            console.log('reply on')
+            console.log(reply);
+            //client.disconnect_ws();
+            response.set('X-Message-Id', String(messageId));
+            return response.send({ 'reply': reply });
+        }
+        catch {
+            //client.disconnect_ws();
+            return response.sendStatus(500);
+        }
+    }
+}
+
+async function poe2Completions(request, response) {
+
+    let maxtoken = request.body.max_tokens
+    request.body = {
+        bot: 'capybara',
+        streaming: false,
+        prompt:  await convertOAItoPOE(request.body.messages)
+    }
+    console.log(request.body)
+    let key = getPoeKey();
+
+    if (!request.body.prompt) {
+        return response.sendStatus(400);
+    }
+
+    const token = key
+
+    if (!token) {
+        return response.sendStatus(401);
+    }
+
+    const count = request.body.count ?? -1;
+
+
+    const prompt = request.body.prompt;
+    const bot = request.body.bot ?? POE_DEFAULT_BOT;
+    const streaming = request.body.streaming ?? false;
+
+    try {
+        console.log('purge active')
+        const client = await getPoeClient(token, true);
+        if (count > 0) {
+            await client.purge_conversation(bot, count);
+        }
+        else {
+            await client.send_chat_break(bot);
+        }
+    } catch {
+        return response.status(500).send('purge error');
+
+    }
+
+    let client;
+
+    try {
+        client = await getPoeClient(token, true);
+    }
+    catch (error) {
+        console.error(error);
+        return response.sendStatus(500);
+    }
+
+    if (streaming) {
+        try {
+            response.write('streaming is not supported');
+        }
+        catch (err) {
+            console.error(err);
+        }
+        finally {
+            //client.disconnect_ws();
+            response.end();
+        }
+    }
+    else {
+        try {
+            
+            let reply;
+            let messageId;
+            for await (const mes of client.send_message(bot, prompt, false, 60)) {
+                reply = mes.text;
+                messageId = mes.messageId;
+            }
+            // console.log('reply on')
+            // console.log(reply);
+            let replyasOAI = await convertPOEtoOAI(reply,maxtoken)
+            console.log(replyasOAI)
+            //client.disconnect_ws();
+            response.set('X-Message-Id', String(messageId));
+            return response.status(200).send(replyasOAI);
+        }
+        catch {
+            //client.disconnect_ws();
+            return response.sendStatus(500);
+        }
+    }
+}
+export { completions, chatCompletions, poeCompletions, poe2Completions };

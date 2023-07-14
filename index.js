@@ -1,5 +1,5 @@
 import express, { json, urlencoded } from 'express';
-import { completions, chatCompletions } from './routes.js';
+import { completions, chatCompletions, poeCompletions, poe2Completions } from './routes.js';
 import { corsMiddleware, rateLimitMiddleware } from './middlewares.js';
 import { DEBUG, SERVER_PORT } from './config.js';
 
@@ -26,6 +26,8 @@ app.all("/", async function (req, res) {
 });
 app.post("/v1/completions", completions);
 app.post("/v1/chat/completions", chatCompletions);
+app.post("/v1/poe/chat/completions", poeCompletions);
+app.post("/v2/poe/chat/completions", poe2Completions);
 
 // Start server
 app.listen(SERVER_PORT, () => {
