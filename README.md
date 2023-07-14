@@ -2,14 +2,14 @@
 
 # Self-Host Your Own API
 
-To self-host your own ChatGPT API, you can use the following steps:
+To self-host your own parser, you can use the following steps:
 
 1. [Get your poe cookie](https://platform.openai.com/account/api-keys)
 2. Clone this repository and install the dependencies:
 
 ```bash
 git clone https://github.com/4e4f4148/JanitorAI-POE-Parser.git
-cd ChatGPT
+cd JanitorAI-POE-Parser
 npm install
 ```
 
