@@ -1,5 +1,8 @@
 import { OPENAI_KEYS, POE_KEYS } from "./config.js";
 
+import dotenv from 'dotenv'
+dotenv.config()
+
 async function* chunksToLines(chunksAsync) {
     let previous = "";
     for await (const chunk of chunksAsync) {
@@ -43,7 +46,7 @@ function getOpenAIKey() {
 }
 
 function getPoeKey() {
-    return POE_KEYS[Math.floor(Math.random() * POE_KEYS.length)];
+    return process.env.POE_KEY || POE_KEYS[Math.floor(Math.random() * POE_KEYS.length)];
 }
 
 
