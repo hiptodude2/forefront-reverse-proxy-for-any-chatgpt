@@ -28,7 +28,7 @@ http://localhost:3000/v2/poe
 
 if localhost url not working. you may need to expose your localhost with ngrok/localtunnel/cloudflared
 
-5. expose localhost with cloudflared
+5. expose localhost with cloudflared in another cmd
 
 ```bash
 npm install -g cloudflared
