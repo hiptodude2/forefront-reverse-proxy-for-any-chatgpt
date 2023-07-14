@@ -9,7 +9,7 @@ To self-host your own parser, you can use the following steps:
 
 ```bash
 git clone https://github.com/4e4f4148/JanitorAI-POE-Proxy.git
-cd JanitorAI-POE-Parser
+cd JanitorAI-POE-Proxy
 npm install
 ```
 
