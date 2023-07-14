@@ -4,7 +4,7 @@
 
 To self-host your own parser, you can use the following steps:
 
-1. [Get your poe cookie](https://platform.openai.com/account/api-keys)
+1. [Get your poe cookie](https://docs.sillytavern.app/usage/api-connections/poe/))
 2. Clone this repository and install the dependencies:
 
 ```bash
