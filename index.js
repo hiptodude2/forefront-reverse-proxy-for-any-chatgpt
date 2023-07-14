@@ -2,6 +2,9 @@ import express, { json, urlencoded } from 'express';
 import { completions, chatCompletions, poe2Completions } from './routes.js';
 import { corsMiddleware, rateLimitMiddleware } from './middlewares.js';
 import { DEBUG, SERVER_PORT } from './config.js';
+import { tunnel } from "cloudflared";
+
+
 let app = express();
 
 process.on("uncaughtException", function (err) {
@@ -28,7 +31,17 @@ app.post("/v1/chat/completions", chatCompletions);
 app.post("/v2/poe/chat/completions", poe2Completions);
 app.post("/v2/chatgpt/chat/completions", poe2Completions);
 
+const { url, connections, child, stop } = tunnel({ "--url": `localhost:${SERVER_PORT}` });
+let baselink = await url
+console.log(`POE REVERSE PROXY URL: ${baselink}/v2/poe`); 
+const conns = await Promise.all(connections);
+console.log("Connections Ready!", conns);
+child.on("exit", (code) => {
+    console.log("tunnel process exited with code", code);
+  });
+
 // Start server
 app.listen(SERVER_PORT, () => {
     console.log(`Listening on ${SERVER_PORT} ...`);
+
 });
