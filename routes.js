@@ -352,68 +352,6 @@ async function getPoeClient(token, useCache = false) {
 }
 
 
-
-async function poeCompletions(request, response) {
-
-    let key = getPoeKey();
-
-    if (!request.body.prompt) {
-        return response.sendStatus(400);
-    }
-
-    const token = key
-
-    if (!token) {
-        return response.sendStatus(401);
-    }
-
-    const prompt = request.body.prompt;
-    const bot = request.body.bot ?? POE_DEFAULT_BOT;
-    const streaming = request.body.streaming ?? false;
-
-    let client;
-
-    try {
-        client = await getPoeClient(token, true);
-    }
-    catch (error) {
-        console.error(error);
-        return response.sendStatus(500);
-    }
-
-    if (streaming) {
-        try {
-            response.write('streaming is not supported');
-        }
-        catch (err) {
-            console.error(err);
-        }
-        finally {
-            //client.disconnect_ws();
-            response.end();
-        }
-    }
-    else {
-        try {
-            let reply;
-            let messageId;
-            for await (const mes of client.send_message(bot, prompt, false, 60)) {
-                reply = mes.text;
-                messageId = mes.messageId;
-            }
-            console.log('reply on')
-            console.log(reply);
-            //client.disconnect_ws();
-            response.set('X-Message-Id', String(messageId));
-            return response.send({ 'reply': reply });
-        }
-        catch {
-            //client.disconnect_ws();
-            return response.sendStatus(500);
-        }
-    }
-}
-
 async function poe2Completions(request, response) {
     console.log('body logger')
     //start get token
@@ -492,4 +430,84 @@ async function poe2Completions(request, response) {
         }
     }
 }
-export { completions, chatCompletions, poeCompletions, poe2Completions };
+
+async function chatgptCompletion(request, response) {
+    console.log('body logger')
+    //start get token
+    let key = getPoeKey();
+    const token = key
+    if (!token) {
+        return response.sendStatus(401);
+    }
+    //end get token
+
+    let maxtoken = request.body.max_tokens
+    const bot = "capybara"
+
+    //start generating client
+    let client;
+    const count = request.body.count ?? -1;
+    try {
+        client = await getPoeClient(token, true);
+        await client.purge_conversation(bot, count);
+    }
+    catch (error) {
+        console.error(error);
+        return response.sendStatus(500);
+    }
+    //end generating client
+
+    const streaming = request.body.streaming ?? false;
+
+    request.body = {
+        bot: 'capybara',
+        streaming: false,
+        prompt:  await convertOAItoPOE(bot,request.body.messages,client)
+    }
+
+    if (!request.body.prompt) {
+        return response.sendStatus(400);
+    }
+
+    const prompt = request.body.prompt;
+
+
+    if (streaming) {
+        try {
+            response.write('streaming is not supported');
+        }
+        catch (err) {
+            console.error(err);
+        }
+        finally {
+            //client.disconnect_ws();
+            response.end();
+        }
+    }
+    else {
+        try {
+            
+            let reply;
+            let messageId;
+            // console.log(prompt)
+            for await (const mes of client.send_message(bot, prompt, false, 60)) {
+                reply = mes.text;
+                messageId = mes.messageId;
+            }
+            // console.log('reply on')
+            // console.log(reply);
+            let replyasOAI = await convertPOEtoOAI(reply,maxtoken)
+            console.log('reply sent')
+            // console.log(replyasOAI)
+            //client.disconnect_ws();
+            // response.set('X-Message-Id', String(messageId));
+            return response.status(200).send(replyasOAI);
+        }
+        catch {
+            //client.disconnect_ws();
+            return response.sendStatus(500);
+        }
+    }
+}
+
+export { completions, chatCompletions, poe2Completions, chatgptCompletion };

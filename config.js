@@ -1,5 +1,8 @@
 // Server configuration
-export const SERVER_PORT = 3000; // Server port
+import dotenv from 'dotenv'
+dotenv.config()
+
+export const SERVER_PORT = process.env.PORT || 3000; // Server port
 export const DEBUG = false; // Debug mode
 
 // Prompt Moderation before sending to OpenAI
