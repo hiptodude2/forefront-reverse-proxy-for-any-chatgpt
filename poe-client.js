@@ -303,7 +303,7 @@ function findKey(obj, key, path = []) {
 function logObjectStructure(obj, indent = 0, depth = Infinity) {
     const keys = Object.keys(obj);
     keys.forEach((key) => {
-        console.log(`${'  '.repeat(indent)}${key}`);
+        // console.log(`${'  '.repeat(indent)}${key}`);
         if (typeof obj[key] === 'object' && obj[key] !== null && indent < depth) {
             logObjectStructure(obj[key], indent + 1, depth);
         }
@@ -704,7 +704,7 @@ class Client {
         //null indicates that a message is still in progress
         this.active_messages["pending"] = null;
 
-        console.log(`Sending message to ${chatbot}: ${message}`);
+        // console.log(`Sending message to ${chatbot}: ${message}`);
 
         const messageData = await this.send_query("SendMessageMutation", {
             "bot": chatbot,
