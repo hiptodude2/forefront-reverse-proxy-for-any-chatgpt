@@ -22,27 +22,13 @@ npm install
 npm start
 ```
 
-6. Use by setting your url as openai reverse proxy in jai and turn off text streaming
+6. You can use it by setting your POE REVERSE PROXY URL as openai reverse proxy in jai and turn off text streaming
 
 ```txt
-http://localhost:3000/v2/poe
+POE REVERSE PROXY URL: https://trend-want-question-italiano.trycloudflare.com/v2/poe
+LOCAL URL: http://localhost:3001/v2/poe
+Listening on 3001 ...
 ```
-
-if localhost url not working. you may need to expose your localhost with cloudflared
-
-7. expose localhost with cloudflared in another cmd (optional)
-
-```bash
-npm install -g cloudflared
-cloudflared tunnel --url localhost:3000
-```
-
-your exposed url should looks like this
-```bash
-https://rooms-physical-growth-chest.trycloudflare.com/
-```
-and you can use https://rooms-physical-growth-chest.trycloudflare.com/v2/poe as reverse proxy link
-
 
 
 # Currently not working with bot that has more than 700 permanent token and will have weird response if using with bot that is situation/world setting
