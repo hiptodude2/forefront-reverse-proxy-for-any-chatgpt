@@ -26,19 +26,24 @@ npm start
 http://localhost:3000/v2/poe
 ```
 
-if localhost url not working. you may need to expose your localhost with ngrok/localtunnel/cloudflared
+if localhost url not working. you may need to expose your localhost with cloudflared
 
-5. expose localhost with cloudflared in another cmd
+5. expose localhost with cloudflared in another cmd (optional)
 
 ```bash
 npm install -g cloudflared
 cloudflared tunnel --url localhost:3000
 ```
 
-your exposed url should looks like https://rooms-physical-growth-chest.trycloudflare.com/
-and use https://rooms-physical-growth-chest.trycloudflare.com/v2/poe as reverse proxy link
+your exposed url should looks like this
+```bash
+https://rooms-physical-growth-chest.trycloudflare.com/
+```
+and you can use https://rooms-physical-growth-chest.trycloudflare.com/v2/poe as reverse proxy link
 
-#Currently not working with bot that has more than 700 permanent token
+
+
+# Currently not working with bot that has more than 700 permanent token and will have weird response if using with bot that is situation/world setting
 
 # License
 
