@@ -34,14 +34,15 @@ app.post("/v2/chatgpt/chat/completions", poe2Completions);
 const { url, connections, child, stop } = tunnel({ "--url": `localhost:${SERVER_PORT}` });
 let baselink = await url
 console.log(`POE REVERSE PROXY URL: ${baselink}/v2/poe`); 
-const conns = await Promise.all(connections);
-console.log("Connections Ready!", conns);
+// const conns = await Promise.all(connections);
+// console.log("Connections Ready!", conns);
 child.on("exit", (code) => {
     console.log("tunnel process exited with code", code);
   });
 
 // Start server
 app.listen(SERVER_PORT, () => {
+    console.log(`LOCAL URL: http://localhost:${SERVER_PORT}/v2/poe`); 
     console.log(`Listening on ${SERVER_PORT} ...`);
 
 });
