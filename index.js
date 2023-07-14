@@ -34,6 +34,8 @@ app.post("/v2/chatgpt/chat/completions", poe2Completions);
 const { url, connections, child, stop } = tunnel({ "--url": `localhost:${SERVER_PORT}` });
 let baselink = await url
 console.log(`POE REVERSE PROXY URL: ${baselink}/v2/poe`); 
+console.log(`CHATGPT REVERSE PROXY URL(WIP): ${baselink}/v2/CHATGPT`); 
+
 // const conns = await Promise.all(connections);
 // console.log("Connections Ready!", conns);
 child.on("exit", (code) => {
