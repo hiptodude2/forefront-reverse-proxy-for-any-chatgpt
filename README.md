@@ -3,22 +3,22 @@
 # Self-Host Your Own API
 
 To self-host your own parser, you can use the following steps:
-
+or reading this [image guide](https://docs.google.com/presentation/d/1UQooaQ2PJMRWA8uVUZvmeUavNIShPoX_OnB7y6KpukY/edit?usp=sharing)
 1. install [node.js](https://nodejs.org/en)
 
 2. [Get your poe cookie](https://docs.sillytavern.app/usage/api-connections/poe/)
-3. Clone this repository and install the dependencies:
+3. Clone or download this repository :
 
 ```bash
 git clone https://github.com/4e4f4148/JanitorAI-POE-Proxy.git
-cd JanitorAI-POE-Proxy
-npm install
 ```
 
 4. Set your poe key and other configurations in the `config.js` file.
-5. Start the server:
+
+5. Start the server by running start.bat or 
 
 ```bash
+npm install
 npm start
 ```
 
