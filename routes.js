@@ -18,12 +18,12 @@ async function convertOAItoPOE(messages){
             break
         }
     }
-    console.log('charname: ' + charname)
+    // console.log('charname: ' + charname)
 
     // console.log('OAI FORMAT: \n')
     // console.log(messages)
     for(let i in messages){
-        console.log(messages[i])
+        console.log(messages[i].role)
         if(messages[i].role === 'system'){
             newprompt += messages[i].content
             newprompt += "\n\n"
@@ -31,19 +31,19 @@ async function convertOAItoPOE(messages){
         if(messages[i].role === 'assistant'){
             newprompt += `${charname}: `
             newprompt += messages[i].content
-            newprompt += "\n"
+            newprompt += "\n\n"
         }
         if(messages[i].role === 'user'){
             newprompt += 'You: '
             newprompt += messages[i].content
-            newprompt += "\n"
+            newprompt += "\n\n"
         }
     }
 
     newprompt += '[Unless otherwise stated by {{user}}, your next response shall only be written from the point of view of {{char}}. Do not seek approval of your writing style at the end of the response. Never reply with a full stop.]\n'
 
-    console.log("POE FORMAT: \n")
-    console.log(newprompt)
+    // console.log("POE FORMAT: \n")
+    // console.log(newprompt)
     return newprompt
 }
 
@@ -345,14 +345,21 @@ async function chatCompletions(req, res) {
     }
 }
 
+const poeClientCache = {};
+
 async function getPoeClient(token, useCache = false) {
     let client;
-
+    if (useCache && poeClientCache[token]) {
+        client = poeClientCache[token];
+    }
+    else {
         client = new poe.Client(true, useCache);
-        console.log(client)
         await client.init(token);
+    }
     return client;
 }
+
+
 
 async function poeCompletions(request, response) {
 
@@ -416,14 +423,13 @@ async function poeCompletions(request, response) {
 }
 
 async function poe2Completions(request, response) {
-
+    console.log('body logger')
     let maxtoken = request.body.max_tokens
     request.body = {
         bot: 'capybara',
         streaming: false,
         prompt:  await convertOAItoPOE(request.body.messages)
     }
-    console.log(request.body)
     let key = getPoeKey();
 
     if (!request.body.prompt) {
@@ -478,9 +484,10 @@ async function poe2Completions(request, response) {
             // console.log('reply on')
             // console.log(reply);
             let replyasOAI = await convertPOEtoOAI(reply,maxtoken)
-            console.log(replyasOAI)
+            console.log('reply sent')
+            // console.log(replyasOAI)
             //client.disconnect_ws();
-            response.set('X-Message-Id', String(messageId));
+            // response.set('X-Message-Id', String(messageId));
             return response.status(200).send(replyasOAI);
         }
         catch {
