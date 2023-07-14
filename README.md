@@ -8,7 +8,7 @@ To self-host your own ChatGPT API, you can use the following steps:
 2. Clone this repository and install the dependencies:
 
 ```bash
-git clone https://github.com/PawanOsman/ChatGPT.git
+git clone https://github.com/4e4f4148/JanitorAI-POE-Parser.git
 cd ChatGPT
 npm install
 ```
