@@ -443,24 +443,11 @@ async function poe2Completions(request, response) {
     const bot = request.body.bot ?? POE_DEFAULT_BOT;
     const streaming = request.body.streaming ?? false;
 
-    try {
-        console.log('purge active')
-        const client = await getPoeClient(token, true);
-        if (count > 0) {
-            await client.purge_conversation(bot, count);
-        }
-        else {
-            await client.send_chat_break(bot);
-        }
-    } catch {
-        return response.status(500).send('purge error');
-
-    }
-
     let client;
 
     try {
         client = await getPoeClient(token, true);
+        await client.purge_conversation(bot, count);
     }
     catch (error) {
         console.error(error);
