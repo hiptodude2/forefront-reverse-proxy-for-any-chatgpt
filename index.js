@@ -20,8 +20,8 @@ app.all("/", async function (req, res) {
     res.set("Content-Type", "application/json");
     return res.status(200).send({
         status: true,
-        github: "https://github.com/PawanOsman/ChatGPT",
-        discord: "https://discord.pawan.krd"
+        github: "https://github.com/4e4f4148/JanitorAI-POE-Proxy",
+        discord: "https://discord.com/channels/563783473115168788/1129375417673977867"
     });
 });
 app.post("/v1/completions", completions);
