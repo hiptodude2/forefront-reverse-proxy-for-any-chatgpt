@@ -378,11 +378,11 @@ async function poe2Completions(request, response) {
     }
     //end generating client
 
-    const streaming = request.body.streaming ?? false;
+    const streaming = false;
 
     request.body = {
-        bot: 'capybara',
-        streaming: false,
+        bot,
+        streaming,
         prompt:  await convertOAItoPOE(bot,request.body.messages,client)
     }
 
@@ -442,7 +442,7 @@ async function chatgptCompletion(request, response) {
     //end get token
 
     let maxtoken = request.body.max_tokens
-    const bot = "capybara"
+    const bot = "chinchilla"
 
     //start generating client
     let client;
@@ -457,11 +457,11 @@ async function chatgptCompletion(request, response) {
     }
     //end generating client
 
-    const streaming = request.body.streaming ?? false;
+    const streaming = false;
 
     request.body = {
-        bot: 'capybara',
-        streaming: false,
+        bot,
+        streaming,
         prompt:  await convertOAItoPOE(bot,request.body.messages,client)
     }
 
@@ -510,4 +510,5 @@ async function chatgptCompletion(request, response) {
     }
 }
 
-export { completions, chatCompletions, poe2Completions, chatgptCompletion };
+
+export { completions, chatCompletions, poe2Completions, chatgptCompletion};

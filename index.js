@@ -1,5 +1,5 @@
 import express, { json, urlencoded } from 'express';
-import { completions, chatCompletions, poe2Completions } from './routes.js';
+import { completions, chatCompletions, poe2Completions, chatgptCompletion } from './routes.js';
 import { corsMiddleware, rateLimitMiddleware } from './middlewares.js';
 import { DEBUG, SERVER_PORT } from './config.js';
 import { tunnel } from "cloudflared";
@@ -28,13 +28,13 @@ app.all("/", async function (req, res) {
 });
 app.post("/v1/completions", completions);
 app.post("/v1/chat/completions", chatCompletions);
-app.post("/v2/poe/chat/completions", poe2Completions);
-app.post("/v2/chatgpt/chat/completions", poe2Completions);
+app.post("/v2/poe/sage/chat/completions", poe2Completions);
+app.post("/v2/poe/chatgpt/chat/completions", chatgptCompletion);
 
 const { url, connections, child, stop } = tunnel({ "--url": `localhost:${SERVER_PORT}` });
 let baselink = await url
-console.log(`POE REVERSE PROXY URL: ${baselink}/v2/poe`); 
-console.log(`CHATGPT REVERSE PROXY URL(WIP): ${baselink}/v2/CHATGPT`); 
+console.log(`[recommend context size < 3000 token]\nPOE REVERSE PROXY URL: ${baselink}/v2/poe/sage`); 
+console.log(`[recommend context size < 4000 token]\nCHATGPT REVERSE PROXY URL: ${baselink}/v2/poe/chatgpt`); 
 
 // const conns = await Promise.all(connections);
 // console.log("Connections Ready!", conns);
@@ -44,7 +44,7 @@ child.on("exit", (code) => {
 
 // Start server
 app.listen(SERVER_PORT, () => {
-    console.log(`LOCAL URL: http://localhost:${SERVER_PORT}/v2/poe`); 
+    console.log(`LOCAL URL: http://localhost:${SERVER_PORT}/v2/poe/sage`); 
     console.log(`Listening on ${SERVER_PORT} ...`);
 
 });
