@@ -18,7 +18,8 @@ async function convertOAItoPOE(bot, messages, client){
     }
     for(let i in messages){
         if(messages[i].role === 'system'){
-            messages[i].content += `\n\nIf you accept the requirements, please confirm this by replying with "Understood.", and nothing more. Upon receiving your accurate confirmation message, I will specify the context of the scene and {{char}}'s characteristics, background, and personality in the next message.`
+            messages[i].content += `\n\nIf you accept the requirements, please confirm this by replying with "Understood.", and nothing more. Upon receiving your accurate confirmation message, I will specify the context of the scene and {{char}}'s characteristics, background, and personality in the next message.\n\n`
+            messages[i].content += '[Unless otherwise stated by {{user}}, your next response shall only be written from the point of view of {{char}} without needed to state who is a speaker. Do not seek approval of your writing style at the end of the response. and Never reply with a full stop.\n'
             for await (const mes of client.send_message(bot, messages[i].content, false, 60)) {
                 reply = mes.text;
             }
@@ -35,14 +36,16 @@ async function convertOAItoPOE(bot, messages, client){
             newprompt += "\n\n"
         }
     }
-    console.log(newprompt)
-    newprompt += '[Unless otherwise stated by {{user}}, your next response shall only be written from the point of view of {{char}}. Do not seek approval of your writing style at the end of the response. Never reply with a full stop.]\n'
+    // console.log(newprompt)
     return newprompt
 }
 
 async function convertPOEtoOAI(messages,maxtoken){
+    console.log(messages)
     let orgId = generateId();
-    
+    let messageout = messages
+    if(messages.includes(':'))
+        messageout = messages.split(":").splice(1)
     let newresponse = {
         id: orgId,
         object: 'chat.completion',
@@ -53,7 +56,7 @@ async function convertPOEtoOAI(messages,maxtoken){
               "index": 0,
               "message": {
                 "role": "assistant",
-                "content": messages
+                "content": messageout
               },
               "finish_reason": "length"
             }
@@ -64,6 +67,7 @@ async function convertPOEtoOAI(messages,maxtoken){
             "total_tokens": maxtoken
         }
     }
+    console.log(messageout)
     return newresponse
 }
 
@@ -373,8 +377,17 @@ async function poe2Completions(request, response) {
         await client.purge_conversation(bot, count);
     }
     catch (error) {
-        console.error(error);
-        return response.sendStatus(500);
+        console.error(error.message);
+        
+        return response.status(500).send({
+            "status": false,
+            "error": {
+              "message": "Invalid poe cookie, Please recheck your cookie",
+              "type": "invalid_request_error"
+            },
+            "hint": "",
+            "info": "https://discord.com/channels/563783473115168788/1129375417673977867",
+          });
     }
     //end generating client
 
@@ -424,9 +437,10 @@ async function poe2Completions(request, response) {
             // response.set('X-Message-Id', String(messageId));
             return response.status(200).send(replyasOAI);
         }
-        catch {
+        catch(error) {
             //client.disconnect_ws();
-            return response.sendStatus(500);
+            console.log(error)
+            return response.send("ded")
         }
     }
 }
@@ -452,8 +466,15 @@ async function chatgptCompletion(request, response) {
         await client.purge_conversation(bot, count);
     }
     catch (error) {
-        console.error(error);
-        return response.sendStatus(500);
+        return response.status(500).send({
+            "status": false,
+            "error": {
+              "message": "Invalid poe cookie, Please recheck your cookie",
+              "type": "invalid_request_error"
+            },
+            "hint": "",
+            "info": "https://discord.com/channels/563783473115168788/1129375417673977867",
+          });
     }
     //end generating client
 
@@ -505,7 +526,15 @@ async function chatgptCompletion(request, response) {
         }
         catch {
             //client.disconnect_ws();
-            return response.sendStatus(500);
+            return response.status(500).send({
+                "status": false,
+                "error": {
+                  "message": "Too long context, please lower context size",
+                  "type": "invalid_request_error"
+                },
+                "hint": "",
+                "info": "https://discord.com/channels/563783473115168788/1129375417673977867",
+              });
         }
     }
 }

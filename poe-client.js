@@ -458,7 +458,7 @@ class Client {
     async get_bots() {
         const viewer = this.viewer;
         if (!viewer.availableBotsConnection) {
-            throw new Error('Invalid token.');
+            throw new Error('Invalid cookie.');
         }
         const botList = viewer.availableBotsConnection.edges.map(x => x.node);
         const retries = 2;
