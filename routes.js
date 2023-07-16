@@ -382,8 +382,8 @@ async function poe2Completions(request, response) {
         return response.status(500).send({
             "status": false,
             "error": {
-              "message": "Invalid poe cookie, Please recheck your cookie",
-              "type": "invalid_request_error"
+                "message": `"${key}" is invalid poe cookie, Please recheck your cookie`,
+                "type": "invalid_request_error"
             },
             "hint": "",
             "info": "https://discord.com/channels/563783473115168788/1129375417673977867",
@@ -469,7 +469,7 @@ async function chatgptCompletion(request, response) {
         return response.status(500).send({
             "status": false,
             "error": {
-              "message": "Invalid poe cookie, Please recheck your cookie",
+              "message": `"${key}" is invalid poe cookie, Please recheck your cookie`,
               "type": "invalid_request_error"
             },
             "hint": "",
