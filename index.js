@@ -4,6 +4,9 @@ import {
   chatCompletions,
   poe2Completions,
   chatgptCompletion,
+  gpt4Completion,
+  claude2Completion,
+  claudeInstantCompletion
 } from "./routes.js";
 import { corsMiddleware, rateLimitMiddleware } from "./middlewares.js";
 import { DEBUG, SERVER_PORT } from "./config.js";
@@ -35,17 +38,30 @@ app.post("/v1/completions", completions);
 app.post("/v1/chat/completions", chatCompletions);
 app.post("/v2/poe/sage/chat/completions", poe2Completions);
 app.post("/v2/poe/chatgpt/chat/completions", chatgptCompletion);
+app.post("/v2/poe/gpt4/chat/completions", gpt4Completion);
+app.post("/v2/poe/claudei/chat/completions", claudeInstantCompletion);
+app.post("/v2/poe/claude2/chat/completions", claude2Completion);
 
 const { url, connections, child, stop } = tunnel({
   "--url": `localhost:${SERVER_PORT}`,
 });
 let baselink = await url;
 console.log(
-  `[recommend context size < 3000 token]\nPOE REVERSE PROXY URL: ${baselink}/v2/poe/sage`
+  `[recommend context size < 3000 token] Sage REVERSE PROXY URL: ${baselink}/v2/poe/sage`
 );
 console.log(
-  `[recommend context size < 4000 token]\nCHATGPT REVERSE PROXY URL: ${baselink}/v2/poe/chatgpt`
+  `[recommend context size < 4000 token] CHATGPT REVERSE PROXY URL: ${baselink}/v2/poe/chatgpt`
 );
+console.log(
+  `[recommend context size < 8000 token (*1 message quota a day*)] GPT4 REVERSE PROXY URL: ${baselink}/v2/poe/gpt4`
+);
+console.log(
+  `[recommend context size < 8000 token (*30 message quota a day*)] CLAUDE INSTANT REVERSE PROXY URL: ${baselink}/v2/poe/claudei`
+);
+console.log(
+  `[recommend context size < 8000 token (*30 message quota a day*)] CLAUDE2 REVERSE PROXY URL: ${baselink}/v2/poe/claude2`
+);
+
 console.log(`Proxy is running on PORT ${SERVER_PORT} ...`);
 
 // const conns = await Promise.all(connections);

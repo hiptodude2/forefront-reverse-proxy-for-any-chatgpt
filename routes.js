@@ -539,5 +539,288 @@ async function chatgptCompletion(request, response) {
     }
 }
 
+async function gpt4Completion(request, response) {
+    console.log('body logger')
+    //start get token
+    let key = getPoeKey();
+    const token = key
+    if (!token) {
+        return response.sendStatus(401);
+    }
+    //end get token
 
-export { completions, chatCompletions, poe2Completions, chatgptCompletion};
+    let maxtoken = request.body.max_tokens
+    const bot = "beaver"
+
+    //start generating client
+    let client;
+    const count = request.body.count ?? -1;
+    try {
+        client = await getPoeClient(token, true);
+        await client.purge_conversation(bot, count);
+    }
+    catch (error) {
+        return response.status(500).send({
+            "status": false,
+            "error": {
+              "message": `"${key}" is invalid poe cookie, Please recheck your cookie`,
+              "type": "invalid_request_error"
+            },
+            "hint": "",
+            "info": "https://discord.com/channels/563783473115168788/1129375417673977867",
+          });
+    }
+    //end generating client
+
+    const streaming = false;
+
+    request.body = {
+        bot,
+        streaming,
+        prompt:  await convertOAItoPOE(bot,request.body.messages,client)
+    }
+
+    if (!request.body.prompt) {
+        return response.sendStatus(400);
+    }
+
+    const prompt = request.body.prompt;
+
+
+    if (streaming) {
+        try {
+            response.write('streaming is not supported');
+        }
+        catch (err) {
+            console.error(err);
+        }
+        finally {
+            //client.disconnect_ws();
+            response.end();
+        }
+    }
+    else {
+        try {
+            
+            let reply;
+            let messageId;
+            // console.log(prompt)
+            for await (const mes of client.send_message(bot, prompt, false, 60)) {
+                reply = mes.text;
+                messageId = mes.messageId;
+            }
+            // console.log('reply on')
+            // console.log(reply);
+            let replyasOAI = await convertPOEtoOAI(reply,maxtoken)
+            console.log('reply sent')
+            // console.log(replyasOAI)
+            //client.disconnect_ws();
+            // response.set('X-Message-Id', String(messageId));
+            return response.status(200).send(replyasOAI);
+        }
+        catch {
+            //client.disconnect_ws();
+            return response.status(500).send({
+                "status": false,
+                "error": {
+                  "message": "Too long context, please lower context size",
+                  "type": "invalid_request_error"
+                },
+                "hint": "",
+                "info": "https://discord.com/channels/563783473115168788/1129375417673977867",
+              });
+        }
+    }
+}
+
+async function claudeInstantCompletion(request, response) {
+    console.log('body logger')
+    //start get token
+    let key = getPoeKey();
+    const token = key
+    if (!token) {
+        return response.sendStatus(401);
+    }
+    //end get token
+
+    let maxtoken = request.body.max_tokens
+    const bot = "a2"
+
+    //start generating client
+    let client;
+    const count = request.body.count ?? -1;
+    try {
+        client = await getPoeClient(token, true);
+        await client.purge_conversation(bot, count);
+    }
+    catch (error) {
+        return response.status(500).send({
+            "status": false,
+            "error": {
+              "message": `"${key}" is invalid poe cookie, Please recheck your cookie`,
+              "type": "invalid_request_error"
+            },
+            "hint": "",
+            "info": "https://discord.com/channels/563783473115168788/1129375417673977867",
+          });
+    }
+    //end generating client
+
+    const streaming = false;
+
+    request.body = {
+        bot,
+        streaming,
+        prompt:  await convertOAItoPOE(bot,request.body.messages,client)
+    }
+
+    if (!request.body.prompt) {
+        return response.sendStatus(400);
+    }
+
+    const prompt = request.body.prompt;
+
+
+    if (streaming) {
+        try {
+            response.write('streaming is not supported');
+        }
+        catch (err) {
+            console.error(err);
+        }
+        finally {
+            //client.disconnect_ws();
+            response.end();
+        }
+    }
+    else {
+        try {
+            
+            let reply;
+            let messageId;
+            // console.log(prompt)
+            for await (const mes of client.send_message(bot, prompt, false, 60)) {
+                reply = mes.text;
+                messageId = mes.messageId;
+            }
+            // console.log('reply on')
+            // console.log(reply);
+            let replyasOAI = await convertPOEtoOAI(reply,maxtoken)
+            console.log('reply sent')
+            // console.log(replyasOAI)
+            //client.disconnect_ws();
+            // response.set('X-Message-Id', String(messageId));
+            return response.status(200).send(replyasOAI);
+        }
+        catch {
+            //client.disconnect_ws();
+            return response.status(500).send({
+                "status": false,
+                "error": {
+                  "message": "Too long context, please lower context size",
+                  "type": "invalid_request_error"
+                },
+                "hint": "",
+                "info": "https://discord.com/channels/563783473115168788/1129375417673977867",
+              });
+        }
+    }
+}
+
+async function claude2Completion(request, response) {
+    console.log('body logger')
+    //start get token
+    let key = getPoeKey();
+    const token = key
+    if (!token) {
+        return response.sendStatus(401);
+    }
+    //end get token
+
+    let maxtoken = request.body.max_tokens
+    const bot = "a2_2"
+
+    //start generating client
+    let client;
+    const count = request.body.count ?? -1;
+    try {
+        client = await getPoeClient(token, true);
+        await client.purge_conversation(bot, count);
+    }
+    catch (error) {
+        return response.status(500).send({
+            "status": false,
+            "error": {
+              "message": `"${key}" is invalid poe cookie, Please recheck your cookie`,
+              "type": "invalid_request_error"
+            },
+            "hint": "",
+            "info": "https://discord.com/channels/563783473115168788/1129375417673977867",
+          });
+    }
+    //end generating client
+
+    const streaming = false;
+
+    request.body = {
+        bot,
+        streaming,
+        prompt:  await convertOAItoPOE(bot,request.body.messages,client)
+    }
+
+    if (!request.body.prompt) {
+        return response.sendStatus(400);
+    }
+
+    const prompt = request.body.prompt;
+
+
+    if (streaming) {
+        try {
+            response.write('streaming is not supported');
+        }
+        catch (err) {
+            console.error(err);
+        }
+        finally {
+            //client.disconnect_ws();
+            response.end();
+        }
+    }
+    else {
+        try {
+            
+            let reply;
+            let messageId;
+            // console.log(prompt)
+            for await (const mes of client.send_message(bot, prompt, false, 60)) {
+                reply = mes.text;
+                messageId = mes.messageId;
+            }
+            // console.log('reply on')
+            // console.log(reply);
+            let replyasOAI = await convertPOEtoOAI(reply,maxtoken)
+            console.log('reply sent')
+            // console.log(replyasOAI)
+            //client.disconnect_ws();
+            // response.set('X-Message-Id', String(messageId));
+            return response.status(200).send(replyasOAI);
+        }
+        catch {
+            //client.disconnect_ws();
+            return response.status(500).send({
+                "status": false,
+                "error": {
+                  "message": "Too long context, please lower context size",
+                  "type": "invalid_request_error"
+                },
+                "hint": "",
+                "info": "https://discord.com/channels/563783473115168788/1129375417673977867",
+              });
+        }
+    }
+}
+
+
+
+export { completions, chatCompletions, poe2Completions, chatgptCompletion,gpt4Completion, claudeInstantCompletion, claude2Completion};
