@@ -1,4 +1,6 @@
 import express, { json, urlencoded } from "express";
+import { getPoeKey } from "./functions.js";
+
 import {
   completions,
   chatCompletions,
@@ -35,6 +37,26 @@ app.post("/v1/completions", completions);
 app.post("/v1/chat/completions", chatCompletions);
 app.post("/v2/poe/sage/chat/completions", poe2Completions);
 app.post("/v2/poe/chatgpt/chat/completions", chatgptCompletion);
+
+app.get("/v2/poe/sage", async function (req, res) {
+  res.set("Content-Type", "application/json");
+  return res.status(200).send({
+    status: true,
+    model: "sage",
+    cookie: getPoeKey(),
+    port: SERVER_PORT,
+  });
+});
+
+app.get("/v2/poe/chatgpt", async function (req, res) {
+  res.set("Content-Type", "application/json");
+  return res.status(200).send({
+    status: true,
+    model: "chatgpt",
+    cookie: getPoeKey(),
+    port: SERVER_PORT,
+  });
+});
 
 const { url, connections, child, stop } = tunnel({
   "--url": `localhost:${SERVER_PORT}`,

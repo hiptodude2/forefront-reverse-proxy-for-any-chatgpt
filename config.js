@@ -1,6 +1,6 @@
 // Server configuration
-import dotenv from 'dotenv'
-dotenv.config()
+import dotenv from "dotenv";
+dotenv.config();
 
 export const SERVER_PORT = process.env.PORT || 3000; // Server port
 export const DEBUG = false; // Debug mode
@@ -14,14 +14,10 @@ export const RATE_LIMIT = 50; // 50 requests per 15 seconds
 
 // Whitelisted IPs
 export const WHITELISTED_IPS = [
-    // "127.0.0.1"
+  // "127.0.0.1"
 ];
 
 // OpenAI API Keys
-export let OPENAI_KEYS = [
-    "sk-xxxxxxxxxxxxxxxxxxxxxx",
-];
+export let OPENAI_KEYS = ["sk-xxxxxxxxxxxxxxxxxxxxxx"];
 
-export let POE_KEYS = [
-    "your poe cookie here",
-];
+export let POE_KEYS = ["your poe cookie here"];
