@@ -1,6 +1,6 @@
 import axios from "axios";
 import { Configuration, OpenAIApi } from "openai";
-import { streamCompletion, generateId, getOpenAIKey, getPoeKey } from "./functions.js"
+import { streamCompletion, generateId, getOpenAIKey, getForefrontKey } from "./functions.js"
 import { DEBUG, MODERATION } from "./config.js";
 import * as forefront from './forefront-cilent.js'
 const forefrontClientCache = {};
