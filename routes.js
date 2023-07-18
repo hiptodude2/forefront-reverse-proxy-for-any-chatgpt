@@ -2,10 +2,10 @@ import axios from "axios";
 import { Configuration, OpenAIApi } from "openai";
 import { streamCompletion, generateId, getOpenAIKey, getPoeKey } from "./functions.js"
 import { DEBUG, MODERATION } from "./config.js";
-import * as poe from './poe-client.js'
-const poeClientCache = {};
+import * as forefront from './forefront-cilent.js'
+const forefrontClientCache = {};
 
-async function convertOAItoPOE(bot, messages, client){
+async function convertOAItoforefront(bot, messages, client){
     let charname = ''
     let newprompt = ''
     let reply
@@ -40,7 +40,7 @@ async function convertOAItoPOE(bot, messages, client){
     return newprompt
 }
 
-async function convertPOEtoOAI(messages,maxtoken){
+async function convertforefronttoOAI(messages,maxtoken){
     console.log(messages)
     let orgId = generateId();
     let messageout = messages
@@ -345,11 +345,11 @@ async function chatCompletions(req, res) {
 
 async function getPoeClient(token, useCache = false) {
     let client;
-    if (useCache && poeClientCache[token]) {
-        client = poeClientCache[token];
+    if (useCache && forefrontClientCache[token]) {
+        client = forefrontClientCache[token];
     }
     else {
-        client = new poe.Client(true, useCache);
+        client = new forefront.Client(true, useCache);
         await client.init(token);
     }
     return client;
@@ -359,7 +359,7 @@ async function getPoeClient(token, useCache = false) {
 async function poe2Completions(request, response) {
     console.log('body logger')
     //start get token
-    let key = getPoeKey();
+    let key = getforefrontKey();
     const token = key
     if (!token) {
         return response.sendStatus(401);
@@ -396,7 +396,7 @@ async function poe2Completions(request, response) {
     request.body = {
         bot,
         streaming,
-        prompt:  await convertOAItoPOE(bot,request.body.messages,client)
+        prompt:  await convertOAItoforefront(bot,request.body.messages,client)
     }
 
     if (!request.body.prompt) {
@@ -430,7 +430,7 @@ async function poe2Completions(request, response) {
             }
             // console.log('reply on')
             // console.log(reply);
-            let replyasOAI = await convertPOEtoOAI(reply,maxtoken)
+            let replyasOAI = await convertforefronttoOAI(reply,maxtoken)
             console.log('reply sent')
             // console.log(replyasOAI)
             //client.disconnect_ws();
@@ -462,14 +462,14 @@ async function chatgptCompletion(request, response) {
     let client;
     const count = request.body.count ?? -1;
     try {
-        client = await getPoeClient(token, true);
+        client = await getforefrontClient(token, true);
         await client.purge_conversation(bot, count);
     }
     catch (error) {
         return response.status(500).send({
             "status": false,
             "error": {
-              "message": `"${key}" is invalid poe cookie, Please recheck your cookie`,
+              "message": `"${key}" is invalid forefront cookie, Please recheck your cookie`,
               "type": "invalid_request_error"
             },
             "hint": "",
@@ -483,7 +483,7 @@ async function chatgptCompletion(request, response) {
     request.body = {
         bot,
         streaming,
-        prompt:  await convertOAItoPOE(bot,request.body.messages,client)
+        prompt:  await convertOAItoforefront(bot,request.body.messages,client)
     }
 
     if (!request.body.prompt) {
@@ -517,7 +517,7 @@ async function chatgptCompletion(request, response) {
             }
             // console.log('reply on')
             // console.log(reply);
-            let replyasOAI = await convertPOEtoOAI(reply,maxtoken)
+            let replyasOAI = await convertforefronttoOAI(reply,maxtoken)
             console.log('reply sent')
             // console.log(replyasOAI)
             //client.disconnect_ws();
@@ -542,7 +542,7 @@ async function chatgptCompletion(request, response) {
 async function gpt4Completion(request, response) {
     console.log('body logger')
     //start get token
-    let key = getPoeKey();
+    let key = getforefrontKey();
     const token = key
     if (!token) {
         return response.sendStatus(401);
@@ -556,14 +556,14 @@ async function gpt4Completion(request, response) {
     let client;
     const count = request.body.count ?? -1;
     try {
-        client = await getPoeClient(token, true);
+        client = await getforefrontClient(token, true);
         await client.purge_conversation(bot, count);
     }
     catch (error) {
         return response.status(500).send({
             "status": false,
             "error": {
-              "message": `"${key}" is invalid poe cookie, Please recheck your cookie`,
+              "message": `"${key}" is invalid forefront cookie, Please recheck your cookie`,
               "type": "invalid_request_error"
             },
             "hint": "",
@@ -577,7 +577,7 @@ async function gpt4Completion(request, response) {
     request.body = {
         bot,
         streaming,
-        prompt:  await convertOAItoPOE(bot,request.body.messages,client)
+        prompt:  await convertOAItoforefront(bot,request.body.messages,client)
     }
 
     if (!request.body.prompt) {
@@ -611,7 +611,7 @@ async function gpt4Completion(request, response) {
             }
             // console.log('reply on')
             // console.log(reply);
-            let replyasOAI = await convertPOEtoOAI(reply,maxtoken)
+            let replyasOAI = await convertforefronttoOAI(reply,maxtoken)
             console.log('reply sent')
             // console.log(replyasOAI)
             //client.disconnect_ws();
@@ -636,7 +636,7 @@ async function gpt4Completion(request, response) {
 async function claudeInstantCompletion(request, response) {
     console.log('body logger')
     //start get token
-    let key = getPoeKey();
+    let key = getforefrontKey();
     const token = key
     if (!token) {
         return response.sendStatus(401);
@@ -650,14 +650,14 @@ async function claudeInstantCompletion(request, response) {
     let client;
     const count = request.body.count ?? -1;
     try {
-        client = await getPoeClient(token, true);
+        client = await getforefrontClient(token, true);
         await client.purge_conversation(bot, count);
     }
     catch (error) {
         return response.status(500).send({
             "status": false,
             "error": {
-              "message": `"${key}" is invalid poe cookie, Please recheck your cookie`,
+              "message": `"${key}" is invalid forefront cookie, Please recheck your cookie`,
               "type": "invalid_request_error"
             },
             "hint": "",
@@ -671,7 +671,7 @@ async function claudeInstantCompletion(request, response) {
     request.body = {
         bot,
         streaming,
-        prompt:  await convertOAItoPOE(bot,request.body.messages,client)
+        prompt:  await convertOAItoforefront(bot,request.body.messages,client)
     }
 
     if (!request.body.prompt) {
@@ -705,7 +705,7 @@ async function claudeInstantCompletion(request, response) {
             }
             // console.log('reply on')
             // console.log(reply);
-            let replyasOAI = await convertPOEtoOAI(reply,maxtoken)
+            let replyasOAI = await convertforefronttoOAI(reply,maxtoken)
             console.log('reply sent')
             // console.log(replyasOAI)
             //client.disconnect_ws();
@@ -730,7 +730,7 @@ async function claudeInstantCompletion(request, response) {
 async function claude2Completion(request, response) {
     console.log('body logger')
     //start get token
-    let key = getPoeKey();
+    let key = getforefrontKey();
     const token = key
     if (!token) {
         return response.sendStatus(401);
@@ -744,14 +744,14 @@ async function claude2Completion(request, response) {
     let client;
     const count = request.body.count ?? -1;
     try {
-        client = await getPoeClient(token, true);
+        client = await getforefrontClient(token, true);
         await client.purge_conversation(bot, count);
     }
     catch (error) {
         return response.status(500).send({
             "status": false,
             "error": {
-              "message": `"${key}" is invalid poe cookie, Please recheck your cookie`,
+              "message": `"${key}" is invalid forefront cookie, Please recheck your cookie`,
               "type": "invalid_request_error"
             },
             "hint": "",
@@ -765,7 +765,7 @@ async function claude2Completion(request, response) {
     request.body = {
         bot,
         streaming,
-        prompt:  await convertOAItoPOE(bot,request.body.messages,client)
+        prompt:  await convertOAItoforefront(bot,request.body.messages,client)
     }
 
     if (!request.body.prompt) {
@@ -799,7 +799,7 @@ async function claude2Completion(request, response) {
             }
             // console.log('reply on')
             // console.log(reply);
-            let replyasOAI = await convertPOEtoOAI(reply,maxtoken)
+            let replyasOAI = await convertforefronttoOAI(reply,maxtoken)
             console.log('reply sent')
             // console.log(replyasOAI)
             //client.disconnect_ws();
@@ -823,4 +823,4 @@ async function claude2Completion(request, response) {
 
 
 
-export { completions, chatCompletions, poe2Completions, chatgptCompletion,gpt4Completion, claudeInstantCompletion, claude2Completion};
+export { completions, chatCompletions, forefront2Completions, chatgptCompletion,gpt4Completion, claudeInstantCompletion, claude2Completion};
