@@ -343,7 +343,7 @@ async function chatCompletions(req, res) {
 }
 
 
-async function getPoeClient(token, useCache = false) {
+async function getforefrontClient(token, useCache = false) {
     let client;
     if (useCache && forefrontClientCache[token]) {
         client = forefrontClientCache[token];
