@@ -1,4 +1,4 @@
-import { OPENAI_KEYS, POE_KEYS } from "./config.js";
+import { OPENAI_KEYS, FOREFRONT_KEYS } from "./config.js";
 
 import dotenv from "dotenv";
 dotenv.config();
@@ -47,10 +47,10 @@ function getOpenAIKey() {
 function getPoeKey() {
   let key =
     process.env.POE_KEY ||
-    POE_KEYS[Math.floor(Math.random() * POE_KEYS.length)];
+    FOREFRONT_KEYS[Math.floor(Math.random() * POE_KEYS.length)];
   key = key.replace("[", "");
   key = key.replace("]", "");
   return key;
 }
 
-export { generateId, getOpenAIKey, getPoeKey, streamCompletion };
+export { generateId, getOpenAIKey, getForefrontKey, streamCompletion };
