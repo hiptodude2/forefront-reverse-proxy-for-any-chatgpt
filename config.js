@@ -20,4 +20,4 @@ export const WHITELISTED_IPS = [
 // OpenAI API Keys
 export let OPENAI_KEYS = ["sk-xxxxxxxxxxxxxxxxxxxxxx"];
 
-export let POE_KEYS = ["your poe cookie here"];
+export let FOREFRONT_KEYS = ["your forefront cookie here"];
