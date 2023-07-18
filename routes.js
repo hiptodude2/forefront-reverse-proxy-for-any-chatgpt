@@ -356,7 +356,7 @@ async function getforefrontClient(token, useCache = false) {
 }
 
 
-async function poe2Completions(request, response) {
+async function forefront2Completions(request, response) {
     console.log('body logger')
     //start get token
     let key = getforefrontKey();
